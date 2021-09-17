@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { OrderStatus } from "@lolatickets/common";
 import { TicketDoc } from "./ticket";
 
