@@ -5,9 +5,10 @@ import {
     NotFoundError,
     requireAuth,
     NotAuthorizedError,
+    BadRequestError,
 } from '@lolatickets/common';
 import { Ticket } from '../models/ticket';
-import { TicketUpdatedPublisher } from '../events/ticket-updated-publisher';
+import { TicketUpdatedPublisher } from '../events/publishers/ticket-updated-publisher';
 import { natsWrapper } from '../nats-wrapper';
 
 const router = express.Router();
@@ -28,6 +29,10 @@ router.put("/api/tickets/:id",
             return next(new NotFoundError());
         }
 
+        if(ticket.orderId) {
+            return next(new BadRequestError("Cannot edit a reserved ticket"));
+        }
+
         if (ticket.userId !== req.currentUser!.id) {
             return next(new NotAuthorizedError());
         }
@@ -45,6 +50,7 @@ router.put("/api/tickets/:id",
             title: ticket.title,
             price: ticket.price,
             userId: ticket.userId,
+            version: ticket.version
         })
 
         return res.status(200).send(ticket);

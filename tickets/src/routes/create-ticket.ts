@@ -2,18 +2,22 @@ import express, { Request, Response, NextFunction } from "express";
 import { body } from "express-validator";
 import { requireAuth, validateRequest } from '@lolatickets/common';
 import { Ticket } from "../models/ticket";
-import { TicketCreatedPublisher } from "../events/ticket-created-publisher";
+import { TicketCreatedPublisher } from "../events/publishers/ticket-created-publisher";
 import { natsWrapper } from "../nats-wrapper";
 
 
 const router = express.Router();
 
-router.post("/api/tickets", requireAuth, [
-    body('title').not().isEmpty().withMessage('Title is required'),
-    body('price')
-        .isFloat({ gt: 0 })
-        .withMessage('Price must be greater than 0'),
-], validateRequest,
+router.post(
+    "/api/tickets",
+    requireAuth,
+    [
+        body('title').not().isEmpty().withMessage('Title is required'),
+        body('price')
+            .isFloat({ gt: 0 })
+            .withMessage('Price must be greater than 0'),
+    ], 
+    validateRequest,
     async (req: Request, res: Response, next: NextFunction) => {
         const { title, price } = req.body;
 
@@ -30,7 +34,8 @@ router.post("/api/tickets", requireAuth, [
             id: ticket.id,
             title: ticket.title,
             price: ticket.price,
-            userId: ticket.userId
+            userId: ticket.userId,
+            version: ticket.version
         })
 
         res.status(201).send(ticket);
