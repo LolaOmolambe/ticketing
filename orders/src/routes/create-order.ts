@@ -40,6 +40,7 @@ router.post(
     // Make sure that this ticket is not already reserved
     const isReserved = await ticket.isReserved();
     if (isReserved) {
+      console.log("Already reserved")
       return next(new BadRequestError('Ticket is already reserved'));
     }
 
@@ -60,6 +61,7 @@ router.post(
     new OrderCreatedPublisher(natsWrapper.client).publish({
       id: order.id,
       status: order.status,
+      version: order.version,
       userId: order.userId,
       expiresAt: order.expiresAt.toISOString(),
       ticket: {
